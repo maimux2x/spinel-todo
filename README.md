@@ -4,14 +4,14 @@
 ネイティブバイナリにコンパイルして使う、CLI の TODO アプリです。
 
 `ARGV` でサブコマンド（`add` / `list` / `done`）を受け取り、`File.read` /
-`File.write` で JSON ファイルに保存します。
+`File.write` で TSV（タブ区切り）ファイルに保存します。
 
 ## 特徴・制約メモ
 
 Spinel は `require` / gem / 標準ライブラリ（`json` など）が使えない Ruby の
 サブセットをコンパイルします。そのため本アプリでは:
 
-- JSON のエンコード／デコードを**自前で実装**（`todo.rb` 内）
+- 永続化は外部依存なしで書ける **TSV 形式**（`String#split` だけで読み書き）
 - TODO は型推論しやすいよう `Hash` ではなく `Todo` クラスで表現
 
 しています。コードは通常の CRuby でもそのまま動くので、コンパイル前に
@@ -34,6 +34,10 @@ sudo make install PREFIX=/usr/local   # 任意
 ```bash
 spinel todo.rb -o todo   # ./todo が生成される
 ```
+
+> `make install` せずに使う場合は、`spinel` をシンボリックリンクするのではなく
+> **本体の `bin` ディレクトリを PATH に追加**してください。Spinel は実行ファイルの
+> 隣の `lib/libspinel_rt.a` を参照するため、リンク経由だとライブラリを見失います。
 
 ## 使い方
 
@@ -58,23 +62,20 @@ $ ./todo list
 [x] 1. 牛乳を買う
 ```
 
-保存先は既定で `todos.json`。環境変数 `SPINEL_TODO_FILE` で変更できます。
+保存先は既定で `todos.tsv`。環境変数 `SPINEL_TODO_FILE` で変更できます。
 
 ```bash
-SPINEL_TODO_FILE=/path/to/mytodos.json ./todo list
+SPINEL_TODO_FILE=/path/to/mytodos.tsv ./todo list
 ```
 
-保存される JSON の例（`todos.json`）:
+保存される TSV の例（`todos.tsv`）。1 行 = `id <TAB> done(0/1) <TAB> text`:
 
-```json
-[
-  {
-    "id": 1,
-    "text": "牛乳を買う",
-    "done": true
-  }
-]
 ```
+1	0	牛乳を買う
+2	1	PRをレビューする
+```
+
+テキスト中のタブ・改行は、1 行 1 レコードを保つため追加時に空白へ変換されます。
 
 ## CRuby で試す（コンパイル不要）
 
