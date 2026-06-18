@@ -6,4 +6,4 @@
 *.rbs
 
 # TODO データファイル
-todos.json
+todos.tsv
