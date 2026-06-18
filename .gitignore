@@ -1,0 +1,9 @@
+# Spinel が生成するネイティブバイナリ（todo.rb -> todo）
+/todo
+
+# Spinel の中間生成物
+*.c
+*.rbs
+
+# TODO データファイル
+todos.json
